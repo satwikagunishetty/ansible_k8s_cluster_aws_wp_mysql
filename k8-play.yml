@@ -15,4 +15,4 @@
 - hosts: [Master]
   roles:
   - name: "Launching Wordpress and Mysql"
-    role: "/ws8/wordpress-mysql"
+    role: "/ws8/wordpress-sql"
