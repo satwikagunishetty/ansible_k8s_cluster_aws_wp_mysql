@@ -1,0 +1,5 @@
+[Master]
+13.127.107.193 ansible_user=ec2-user
+[Slave]
+13.126.140.155  ansible_user=ec2-user
+13.233.18.146   ansible_user=ec2-user
