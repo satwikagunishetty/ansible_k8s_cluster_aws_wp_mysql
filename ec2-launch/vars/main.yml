@@ -1,7 +1,7 @@
 ---
 # vars file for ec2-launch
-aws_access_key: 'AKIA4NWJPPEMEHQDPOEW'
-aws_secret_key: 'wx4JXlr4yx/PfJ7MFYW6rpBGGvXXv7sz3WVMM65O'
+aws_access_key: 'Enter your aws access key'
+aws_secret_key: 'Enter your aws secret key'
 vpc_title: 'K8S Cluster'
 vpc_name: "{{ vpc_title }} VPC"
 igw_name: "{{ vpc_title }} IGW"
