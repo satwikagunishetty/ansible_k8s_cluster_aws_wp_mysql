@@ -4,42 +4,47 @@
   package:
      name: docker
      state: present
-
+  ignore_errors: yes
 - name: "Starting Docker"
   service:
      name: docker
      state:  restarted
-
+  ignore_errors: yes
 - name: "enabling docker"
   shell: "systemctl enable docker --now"
   changed_when: false
 
-- name: Configure kubernetes repo
-  shell: |
-      cat <<EOF | sudo tee /etc/yum.repos.d/kubernetes.repo
-      [kubernetes]
-      name=Kubernetes
-      baseurl=https://packages.cloud.google.com/yum/repos/kubernetes-el7-\$basearch
-      enabled=1
-      gpgcheck=1
-      repo_gpgcheck=1
-      gpgkey=https://packages.cloud.google.com/yum/doc/yum-key.gpg https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg
-      exclude=kubelet kubeadm kubectl
-      EOF
-  ignore_errors: yes
-  changed_when: false
-
+- name: Configure yum kubernetes repo
+  yum_repository:
+     name: "kubernetes"
+     description: kubernetes repo
+     baseurl: https://packages.cloud.google.com/yum/repos/kubernetes-el7-\$basearch
+     enabled: yes
+     gpgcheck: yes
+     repo_gpgcheck: yes
+     gpgkey:
+       - "https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg"
+       - "https://packages.cloud.google.com/yum/doc/yum-key.gpg"
+     exclude:
+       - kublet
+       - kubeadm
+       - kubectl
 - name: "Installing KubeAdm, kubectl and kubelet"
-  shell: "yum install -y  kubeadm  --disableexcludes=kubernetes"
-  register: kubeadm
-  changed_when: false
+  yum:
+    name:
+      - kubelet
+      - kubeadm
+      - kubectl
+    state: present
+    disable_excludes: "kubernetes"
 
-- debug:
-    var: kubeadm.stdout_lines
 
-- name: "Enabling kubelet"
-  shell: "systemctl enable kubelet  --now"
-  changed_when: false
+- name: "Starting and Enabling  kubelet"
+  service:
+     name: kubelet
+     state:  restarted
+     enabled: yes
+  ignore_errors: yes
 
 - name: "Pulling Images using KubeAdm"
   shell: "kubeadm config  images pull"
@@ -55,11 +60,14 @@
       "exec-opts": ["native.cgroupdriver=systemd"]
       }
       EOF
+
   changed_when: false
+
 - name: "Re-starting Docker"
   service:
      name: docker
      state:  restarted
+
 - name: "Installing iproute-tc"
   package:
      name: iproute-tc
